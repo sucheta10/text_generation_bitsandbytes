@@ -1,0 +1,23 @@
+!pip install --upgrade bitsandbytes
+!pip install --upgrade accelerate
+!pip install transformers==4.38.0
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+
+
+tokenizer = AutoTokenizer.from_pretrained("facebook/opt-125m")
+
+# Configure BitsAndBytesConfig for 4-bit quantization
+config = BitsAndBytesConfig(
+    load_in_4bit=True  # Loading the model in 4-bit precision
+)
+
+# Load the model with the configuration
+model = AutoModelForCausalLM.from_pretrained("facebook/opt-125m", quantization_config=config)
+
+# Example text generation
+text = "Hello my name is"
+inputs = tokenizer(text, return_tensors="pt")
+outputs = model.generate(inputs["input_ids"], min_length=40, max_length=128)
+generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+print(generated_text)
